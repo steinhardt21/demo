@@ -102,32 +102,66 @@ export default function Home() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     console.log('file ')
     e.preventDefault()
-    if (!file) return
-    console.log('**2')
 
-    setOpen(true);
+    if (url) {
+      setOpen(true);
 
-    // uploadFile(file)
+      // uploadFile(file)
 
-    const formData = new FormData();
-    formData.append("file", file);
+      const formData = new FormData();
+      formData.append("file", file);
 
-    const apiKey = "sec_9FrP2zFJXxYWuXQX1tmY5sLv6OysV7Iy";
-    const headers = {
-      "x-api-key": apiKey,
-    };
+      const apiKey = "sec_9FrP2zFJXxYWuXQX1tmY5sLv6OysV7Iy";
+      const headers = {
+        "x-api-key": apiKey,
+      };
+      const data = {
+        url: url
+      };
 
-    const response = await axios.post("https://api.chatpdf.com/v1/sources/add-file", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        "x-api-key": "sec_9FrP2zFJXxYWuXQX1tmY5sLv6OysV7Iy",
-      },
-    })
+      const response = await axios.post("https://api.chatpdf.com/v1/sources/add-url", data, {
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": "sec_9FrP2zFJXxYWuXQX1tmY5sLv6OysV7Iy",
+        },
+      })
 
-    setPdf(response.data.sourceId)
-    setOrigin(response.data.sourceId)
-    console.log('**** set pdf ', pdf)
-    setOpen(false);
+      setPdf(response.data.sourceId)
+      setOrigin(response.data.sourceId)
+      console.log('**** set pdf ', pdf)
+      setOpen(false);
+    }
+    else {
+      if (!file) return
+      console.log('**2')
+
+      setOpen(true);
+
+      // uploadFile(file)
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const apiKey = "sec_9FrP2zFJXxYWuXQX1tmY5sLv6OysV7Iy";
+      const headers = {
+        "x-api-key": apiKey,
+      };
+
+      const response = await axios.post("https://api.chatpdf.com/v1/sources/add-file", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          "x-api-key": "sec_9FrP2zFJXxYWuXQX1tmY5sLv6OysV7Iy",
+        },
+      })
+
+      setPdf(response.data.sourceId)
+      setOrigin(response.data.sourceId)
+      console.log('**** set pdf ', pdf)
+      setOpen(false);
+    }
+
+
+
   };
 
 
@@ -136,6 +170,11 @@ export default function Home() {
     setText(e.target.value); // Update the 'text' state when the input changes
   };
 
+
+  const [url, setUrl] = useState(null);
+  const handlinkChange = (e: any) => {
+    setUrl(e.target.value); // Update the 'text' state when the input changes
+  }
 
   const leftSideStyles = {
     backgroundColor: 'blue',
@@ -205,9 +244,13 @@ export default function Home() {
                     textAlign: 'center',
                     transition: 'color .2s ease-in-out',
                   }}>Drop files here</span> or
-                  <input onChange={handleFileChange} type="file" id="images" required />
+                  <input onChange={handleFileChange} type="file" id="images" />
+
+
                 </label>
               </div>
+              or
+              <div style={{ marginTop: '10px' }}> <Input placeholder="Type url in here…" onChange={handlinkChange} /></div>
               <div style={{ marginTop: '20px', marginLeft: '90px' }}>
                 <Button
                   type="submit"
