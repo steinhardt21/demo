@@ -41,7 +41,7 @@ export default function Home() {
 
     console.log('myData ', myData)
     const data = {
-      sourceId: origin,
+      sourceId: pdf,
       messages: myData,
     };
     // Add the user's input to memory
@@ -56,7 +56,7 @@ export default function Home() {
       data,
       config
     );
-    setMemory((prevMemory) => [...prevMemory, { role: "asistant", content: response.data.content }]);
+    setMemory((prevMemory) => [...prevMemory, { role: "assistant", content: response.data.content }]);
 
 
 
@@ -88,7 +88,7 @@ export default function Home() {
       data,
       config
     );
-    setMemory((prevMemory) => [...prevMemory, { role: "asistant", content: response.data.content }]);
+    setMemory((prevMemory) => [...prevMemory, { role: "assistant", content: response.data.content }]);
 
 
 
@@ -102,7 +102,7 @@ export default function Home() {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    console.log('file ')
+    console.log('****** MY file ')
     e.preventDefault()
 
     if (url) {
@@ -128,8 +128,8 @@ export default function Home() {
         },
       })
 
-      setPdf(response.data.sourceId)
-      setOrigin(response.data.sourceId)
+      if (pdf === null) setPdf(response.data.sourceId)
+      // setOrigin(response.data.sourceId)
       console.log('**** set pdf ', pdf)
       setOpen(false);
     }
@@ -249,19 +249,19 @@ export default function Home() {
                   Upload
                 </Button>
               </div>
-              <div style={{ marginTop: '20px', marginLeft: '80px' }}>
-                <Button
-                  type="submit"
-                  onClick={askPdf}
-                  variant="contained"
-                  style={{ backgroundColor: 'gray', color: 'black' }}
-                // startIcon={<CloudUploadIcon />}
-                >
-                  Get insights
-                </Button>
-              </div>
-            </form>
 
+            </form>
+            <div style={{ marginTop: '20px', marginLeft: '80px' }}>
+              <Button
+                type="submit"
+                onClick={askPdf}
+                variant="contained"
+                style={{ backgroundColor: 'gray', color: 'black' }}
+              // startIcon={<CloudUploadIcon />}
+              >
+                Get insights
+              </Button>
+            </div>
 
           </div>
 
