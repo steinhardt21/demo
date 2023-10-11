@@ -22,12 +22,17 @@ const config = {
 
 export default function Home() {
   const [pdf, setPdf] = useState(null);
-  const [counter, setCouter] = useState(0); // Added state for counter
   const [memory, setMemory] = useState<{ role: string; content: string; }[]>([]); // Define the initial state type
   const [text, setText] = useState("Identify the challenges and opportunities that the company faced this fiscal year and list them as bullet points."); // Added state for text input
+  const [prom, setProm] = useState('Identify the challenges and opportunities that the company faced this fiscal year and list them as bullet points.')
+
   const [output, setOutput] = useState("")
 
   const [origin, setOrigin] = useState(null);
+  const [file, setFile] = useState(null);
+  const [url, setUrl] = useState(null);
+  const [open, setOpen] = useState(false);
+
 
 
   const chatPdf = async () => {
@@ -67,7 +72,7 @@ export default function Home() {
       messages: [
         {
           role: "user",
-          content: text
+          content: prom
         },
       ],
     };
@@ -91,9 +96,6 @@ export default function Home() {
     setOutput(response.data.content)
     setOpen(false)
   }
-
-
-  const [file, setFile] = useState(null);
 
   const handleFileChange = (e: any) => {
     setFile(e.target.files?.[0]);
@@ -164,33 +166,18 @@ export default function Home() {
 
   };
 
-
-
   const handleTextChange = (e: any) => {
     setText(e.target.value); // Update the 'text' state when the input changes
   };
 
 
-  const [url, setUrl] = useState(null);
   const handlinkChange = (e: any) => {
     setUrl(e.target.value); // Update the 'text' state when the input changes
   }
 
-  const leftSideStyles = {
-    backgroundColor: 'blue',
-    padding: '20px',
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-  };
-  const [open, setOpen] = useState(false);
-  const handleClose = () => {
-    setOpen(false);
-  };
-  const handleOpen = () => {
-    setOpen(true);
-  };
+  const handlePrompt = (e: any) => {
+    setProm(e.target.value); // Update the 'text' state when the input changes
+  }
 
   return (
     <Container fluid>
@@ -251,6 +238,7 @@ export default function Home() {
               </div>
               or
               <div style={{ marginTop: '10px' }}> <Input placeholder="Type url in here…" onChange={handlinkChange} /></div>
+              <div style={{ marginTop: '10px' }}> <Input value={prom} placeholder="prompt" onChange={handlePrompt} /></div>
               <div style={{ marginTop: '20px', marginLeft: '90px' }}>
                 <Button
                   type="submit"
