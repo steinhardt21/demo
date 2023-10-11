@@ -24,9 +24,10 @@ export default function Home() {
   const [pdf, setPdf] = useState(null);
   const [counter, setCouter] = useState(0); // Added state for counter
   const [memory, setMemory] = useState<{ role: string; content: string; }[]>([]); // Define the initial state type
-  const [text, setText] = useState("How is the company facing the challenges of this fiscal year? Elaborate challenges and opportunities as bullet points."); // Added state for text input
+  const [text, setText] = useState("Identify the challenges and opportunities that the company faced this fiscal year and list them as bullet points."); // Added state for text input
   const [output, setOutput] = useState("")
 
+  const [origin, setOrigin] = useState(null);
 
 
   const chatPdf = async () => {
@@ -116,29 +117,19 @@ export default function Home() {
       "x-api-key": apiKey,
     };
 
-    axios
-      .post("https://api.chatpdf.com/v1/sources/add-file", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          "x-api-key": "sec_9FrP2zFJXxYWuXQX1tmY5sLv6OysV7Iy",
-        },
-      })
-      .then((response) => {
-        // handle the response
-        console.log(response);
-        setPdf(response.data.sourceId)
-        setOrigin(response.data.sourceId)
-        console.log('**** set pdf ', pdf)
-        setOpen(false);
-      })
-      .catch((error) => {
-        // handle errors
-        console.log(error);
-        setOpen(false);
-      });
+    const response = await axios.post("https://api.chatpdf.com/v1/sources/add-file", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        "x-api-key": "sec_9FrP2zFJXxYWuXQX1tmY5sLv6OysV7Iy",
+      },
+    })
+
+    setPdf(response.data.sourceId)
+    setOrigin(response.data.sourceId)
+    console.log('**** set pdf ', pdf)
+    setOpen(false);
   };
 
-  const [origin, setOrigin] = useState(null);
 
 
   const handleTextChange = (e: any) => {
