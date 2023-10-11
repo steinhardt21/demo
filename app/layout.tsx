@@ -1,8 +1,13 @@
-import './globals.css'
+
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import '@radix-ui/themes/styles.css';
+import { Theme } from '@radix-ui/themes';
+import 'bootstrap/dist/css/bootstrap.css'
 
 const inter = Inter({ subsets: ['latin'] })
+
+
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -16,7 +21,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
-    </html>
+      <head>
+        <script src="https://cdn.jsdelivr.net/npm/react/umd/react.production.min.js"></script>
+
+        <script
+          src="https://cdn.jsdelivr.net/npm/react-dom/umd/react-dom.production.min.js"
+          crossOrigin='anonymous'></script>
+
+        <script
+          src="https://cdn.jsdelivr.net/npm/react-bootstrap@next/dist/react-bootstrap.min.js"
+          crossOrigin='anonymous'></script>
+      </head>
+      <body>
+        {children}
+      </body>
+    </html >
   )
 }
