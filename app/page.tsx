@@ -18,9 +18,6 @@ const config = {
   },
 };
 
-const data = {
-  url: "https://www.glencore.com/.rest/api/v1/documents/static/a6349da6-3d11-4662-9107-28e19667d236/GLEN-2023-Half-Year-Report.pdf",
-};
 
 
 export default function Home() {
@@ -30,16 +27,7 @@ export default function Home() {
   const [text, setText] = useState("How is the company facing the challenges of this fiscal year? Elaborate challenges and opportunities as bullet points."); // Added state for text input
   const [output, setOutput] = useState("")
 
-  const handleClick = async () => {
-    const response = await axios.post(
-      "https://api.chatpdf.com/v1/sources/add-url",
-      data,
-      config
-    );
-    console.log(response);
-    const { data: { sourceId } } = response;
-    setPdf(sourceId);
-  };
+
 
   const chatPdf = async () => {
     const myData = memory
@@ -47,7 +35,7 @@ export default function Home() {
 
     console.log('myData ', myData)
     const data = {
-      sourceId: pdf,
+      sourceId: origin,
       messages: myData,
     };
     // Add the user's input to memory
@@ -139,6 +127,8 @@ export default function Home() {
         // handle the response
         console.log(response);
         setPdf(response.data.sourceId)
+        setOrigin(response.data.sourceId)
+        console.log('**** set pdf ', pdf)
         setOpen(false);
       })
       .catch((error) => {
@@ -148,42 +138,7 @@ export default function Home() {
       });
   };
 
-
-  const uploadFile = async (file: any) => {
-    const chunkSize = 1024 * 1024; // 1MB chunks (adjust as needed)
-    const totalChunks = Math.ceil(file.size / chunkSize);
-    const apiKey = "sec_9FrP2zFJXxYWuXQX1tmY5sLv6OysV7Iy";
-
-    for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
-      const start = chunkIndex * chunkSize;
-      const end = Math.min(start + chunkSize, file.size);
-      const chunk = file.slice(start, end);
-
-      const formData = new FormData();
-      formData.append("file", chunk);
-
-      try {
-        const response = await axios.post(
-          "https://api.chatpdf.com/v1/sources/add-file",
-          formData,
-          {
-            headers: {
-              "x-api-key": apiKey,
-              // Set the content type to multipart/form-data
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-
-        console.log(`Chunk ${chunkIndex + 1}/${totalChunks} uploaded.`);
-      } catch (error: any) {
-        console.error(`Error uploading chunk ${chunkIndex + 1}:`, error.message);
-        return;
-      }
-    }
-
-    console.log("File upload completed.");
-  };
+  const [origin, setOrigin] = useState(null);
 
 
   const handleTextChange = (e: any) => {
@@ -259,7 +214,7 @@ export default function Home() {
                     textAlign: 'center',
                     transition: 'color .2s ease-in-out',
                   }}>Drop files here</span> or
-                  <input onChange={handleFileChange} type="file" id="images" accept="image/*" required />
+                  <input onChange={handleFileChange} type="file" id="images" required />
                 </label>
               </div>
               <div style={{ marginTop: '20px', marginLeft: '90px' }}>
