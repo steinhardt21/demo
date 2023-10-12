@@ -185,17 +185,19 @@ export default function Home() {
         {/* Left Side */}
         <Col md={3} style={{
           backgroundColor: 'rgb(0, 21, 41)',
-          padding: '20px',
+          padding: '1%',
           height: '100vh',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
+          width: '23%',
           alignItems: 'center', // Center items horizontally
         }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
             <form onSubmit={handleSubmit} style={{
               display: 'flex',
               flexDirection: 'column',
+              width: '100%'
             }}>
               <div>
                 {/* <Button onClick={handleOpen}>Show backdrop</Button> */}
