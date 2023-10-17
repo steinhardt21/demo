@@ -6,7 +6,7 @@ import { useState, useCallback, useMemo, useEffect } from 'react';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import { Button, IconButton, Backdrop, CircularProgress } from '@mui/material';
+import { Button, IconButton, Backdrop, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { Textarea, FormControl, FormLabel, Input } from '@mui/joy';
 import { useDropzone } from 'react-dropzone'
@@ -33,6 +33,42 @@ export default function Home() {
   const [file, setFile] = useState(null);
   const [url, setUrl] = useState(null);
   const [open, setOpen] = useState(false);
+  const [openPopUp, setOpenPopUp] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpenPopUp(true);
+  };
+
+  const handleClose = async () => {
+    setOpenPopUp(false);
+    console.log('** URL 1')
+    console.log('** URL ', url)
+    setOpen(true);
+
+    if (url) {
+
+      console.log('** URL 2')
+      const apiKey = "sec_9FrP2zFJXxYWuXQX1tmY5sLv6OysV7Iy";
+      const headers = {
+        "x-api-key": apiKey,
+      };
+      const data = {
+        url: url
+      };
+
+      const response = await axios.post("https://api.chatpdf.com/v1/sources/add-url", data, {
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": "sec_9FrP2zFJXxYWuXQX1tmY5sLv6OysV7Iy",
+        },
+      })
+
+      if (pdf === null) setPdf(response.data.sourceId)
+      // setOrigin(response.data.sourceId)
+      console.log('**** set pdf ', pdf)
+      setOpen(false);
+    }
+  };
 
 
   const chatPdf = async () => {
@@ -107,6 +143,7 @@ export default function Home() {
 
     if (url) {
       setOpen(true);
+      console.log('** URL')
 
       // uploadFile(file)
 
@@ -351,6 +388,36 @@ export default function Home() {
               <input {...getInputProps()} />
               <p>{textDropZone}</p>
             </div>
+            <p
+              onClick={handleClickOpen}
+              style={{
+                bottom: '0',
+                left: '0',
+                cursor: 'pointer',
+              }}
+            >From URL</p>
+            <Dialog open={openPopUp} onClose={handleClose}>
+              <DialogTitle>URL pdf</DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  Insert the URL of your PDF file here to get insights.
+                </DialogContentText>
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  id="name"
+                  label="URL"
+                  type="url"
+                  onChange={handlinkChange}
+                  fullWidth
+                  variant="standard"
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleClose}>Back</Button>
+                <Button onClick={handleClose}>Send</Button>
+              </DialogActions>
+            </Dialog>
           </div>
         </Col>
 
