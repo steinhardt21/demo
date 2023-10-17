@@ -2,13 +2,14 @@
 import Image from 'next/image'
 import axios from 'axios'
 import FormData from "form-data";
-import { useState } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import { Button, IconButton, Backdrop, CircularProgress } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { Textarea, FormControl, FormLabel, Input } from '@mui/joy';
+import { useDropzone } from 'react-dropzone'
 import './globals.css'
 
 const config = {
@@ -32,7 +33,6 @@ export default function Home() {
   const [file, setFile] = useState(null);
   const [url, setUrl] = useState(null);
   const [open, setOpen] = useState(false);
-
 
 
   const chatPdf = async () => {
@@ -179,151 +179,266 @@ export default function Home() {
     setProm(e.target.value); // Update the 'text' state when the input changes
   }
 
+  const baseStyle = {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    padding: '20px',
+    borderWidth: 2,
+    borderRadius: 2,
+    borderColor: '#eeeeee',
+    borderStyle: 'dashed',
+    backgroundColor: '#fafafa',
+    color: '#bdbdbd',
+    outline: 'none',
+    transition: 'border .24s ease-in-out'
+  };
+
+  const focusedStyle = {
+    borderColor: '#2196f3'
+  };
+
+  const acceptStyle = {
+    borderColor: '#00e676'
+  };
+
+  const rejectStyle = {
+    borderColor: '#ff1744'
+  };
+
+
+  const {
+    getRootProps,
+    getInputProps,
+    isFocused,
+    isDragAccept,
+    isDragReject,
+    acceptedFiles
+  } = useDropzone();
+
+  const styleDrop = useMemo(() => ({
+    ...baseStyle,
+    ...(isFocused ? focusedStyle : {}),
+    ...(isDragAccept ? acceptStyle : {}),
+    ...(isDragReject ? rejectStyle : {})
+  }), [
+    isFocused,
+    isDragAccept,
+    isDragReject
+  ]);
+
+  const uploadFile = async () => {
+    if (acceptedFiles.length > 0 && acceptedFiles[0].name) {
+      setTextDropZone(acceptedFiles[0]?.name)
+
+      console.log('**1')
+
+      if (url) {
+        setOpen(true);
+        console.log('**2')
+
+        // uploadFile(file)
+
+        const formData = new FormData();
+        formData.append("file", acceptedFiles[0]);
+
+        const apiKey = "sec_9FrP2zFJXxYWuXQX1tmY5sLv6OysV7Iy";
+        const headers = {
+          "x-api-key": apiKey,
+        };
+        const data = {
+          url: url
+        };
+
+        const response = await axios.post("https://api.chatpdf.com/v1/sources/add-url", data, {
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": "sec_9FrP2zFJXxYWuXQX1tmY5sLv6OysV7Iy",
+          },
+        })
+
+        if (pdf === null) setPdf(response.data.sourceId)
+        // setOrigin(response.data.sourceId)
+        console.log('**** set pdf ', pdf)
+        setOpen(false);
+      }
+      else {
+        if (!acceptedFiles[0]) return
+        console.log('**2')
+
+        setOpen(true);
+
+        // uploadFile(file)
+
+        const formData = new FormData();
+        formData.append("file", acceptedFiles[0]);
+
+        const apiKey = "sec_9FrP2zFJXxYWuXQX1tmY5sLv6OysV7Iy";
+        const headers = {
+          "x-api-key": apiKey,
+        };
+
+        const response = await axios.post("https://api.chatpdf.com/v1/sources/add-file", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "x-api-key": "sec_9FrP2zFJXxYWuXQX1tmY5sLv6OysV7Iy",
+          },
+        })
+
+        setPdf(response.data.sourceId)
+        setOrigin(response.data.sourceId)
+        console.log('**** set sourceId ', response.data.sourceId)
+        console.log('**** set pdf ', pdf)
+        setOpen(false);
+      }
+    }
+  }
+
+  useEffect(() => {
+
+    uploadFile()
+      // make sure to catch any error
+      .catch(console.error);
+  }, [acceptedFiles]);
+
+
+  const [textDropZone, setTextDropZone] = useState('Drag and drop your file here, or click to select file')
+
+
   return (
     <Container fluid>
+      < Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={open}
+      // onClick={handleClose}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
       <Row>
         {/* Left Side */}
-        <Col md={3} style={{
-          backgroundColor: 'rgb(0, 21, 41)',
+        <Col md={6} style={{
           padding: '1%',
           height: '100vh',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          width: '23%',
+          // width: '23%',
           alignItems: 'center', // Center items horizontally
         }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-            <form onSubmit={handleSubmit} style={{
-              display: 'flex',
-              flexDirection: 'column',
-              width: '100%'
-            }}>
-              <div>
-                {/* <Button onClick={handleOpen}>Show backdrop</Button> */}
-                <Backdrop
-                  sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-                  open={open}
-                // onClick={handleClose}
-                >
-                  <CircularProgress color="inherit" />
-                </Backdrop>
-              </div>
-              <div>
-                <label htmlFor="images" style={{
-                  position: 'relative',
-                  display: 'flex',
-                  gap: '10px',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: '200px',
-                  padding: '20px',
-                  borderRadius: '10px',
-                  border: '2px dashed #555',
-                  color: '#fff',
-                  cursor: 'pointer',
-                  transition: 'background .2s ease-in-out, border .2s ease-in-out',
-                }}
-                  className="drop-container" id="dropcontainer">
-                  <span className="drop-title" style={{
-                    color: '#fff',
-                    fontSize: '20px',
-                    fontWeight: 'bold',
-                    textAlign: 'center',
-                    transition: 'color .2s ease-in-out',
-                  }}>Drop files here</span> or
-                  <input onChange={handleFileChange} type="file" id="images" />
-
-
-                </label>
-              </div>
-              or
-              <div style={{ marginTop: '10px' }}> <Input placeholder="Type url in here…" onChange={handlinkChange} /></div>
-              <div style={{ marginTop: '10px' }}> <Input value={prom} placeholder="prompt" onChange={handlePrompt} /></div>
-              <div style={{ marginTop: '20px', marginLeft: '90px' }}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  style={{ backgroundColor: 'white', color: 'black' }}
-                  startIcon={<CloudUploadIcon />}
-                >
-                  Upload
-                </Button>
-              </div>
-
-            </form>
-            <div style={{ marginTop: '20px', marginLeft: '80px' }}>
-              <Button
-                type="submit"
-                onClick={askPdf}
-                variant="contained"
-                style={{ backgroundColor: 'gray', color: 'black' }}
-              // startIcon={<CloudUploadIcon />}
-              >
-                Get insights
-              </Button>
-            </div>
-
+          <div style={{
+            width: '100%',
+            height: '10%',
+          }}>
           </div>
-
+          <div style={{
+            width: '90%',
+            height: '90%',
+            borderRadius: '15px',
+            boxShadow: 'rgb(0 0 0 / 24%) 1px 1px 2px 1px'
+          }}>
+            <div style={{
+              width: '100%',
+              height: '100%',
+              backgroundColor: '#f5f5f5',
+              borderRadius: '15px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }} {...getRootProps({ styleDrop })}>
+              <input {...getInputProps()} />
+              <p>{textDropZone}</p>
+            </div>
+          </div>
         </Col>
 
         {/* Right Side */}
-        <Col md={9} style={{
+        <Col md={6} style={{
           padding: '20px',
           height: '100vh',
-          display: 'flex',
-          flexDirection: 'column', // Use column layout
+          alignItems: 'center'
         }}>
-          <div className="right-side">
-            {output}
-          </div>
-          {/* Add your input here */}
-          <div style={{ marginTop: 'auto', marginBottom: '20px' }}>
-            <Input
-              sx={{ '--Input-decoratorChildHeight': '45px' }}
-              placeholder="Insert question"
-              type="text"
-              required
-              value={text}
-              onChange={handleTextChange}
-              endDecorator={
-                <Button
-                  // variant="solid"
-                  color="primary"
-                  // loading={data.status === 'loading'}
-                  onClick={chatPdf}
-                  sx={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
-                >
-                  Ask
-                </Button>
-              }
 
-            />
+          <div style={{
+            width: '100%',
+            height: '10%'
+          }}>
+
           </div>
+
+          <div style={{
+            // border: '1px solid black',
+            width: '90%',
+            height: '90%',
+            marginBottom: '5%',
+            flexDirection: 'column',
+            display: 'flex',
+          }}>
+            <div style={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'row',
+            }}>
+              <div
+
+                onClick={() => askPdf()}
+                style={{
+                  // border: '1px solid black',
+                  width: '50%',
+                  height: '90%',
+                  marginRight: '2%',
+                  borderRadius: '15px',
+                  boxShadow: 'rgb(0 0 0 / 24%) 1px 1px 2px 1px',
+                  cursor: 'pointer',
+                  padding: '20px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}>
+                <p><b>OPPORTUNITIES</b></p>
+                <p>Single prompt</p>
+              </div>
+
+              <div
+                onClick={() => askPdf()}
+
+                style={{
+                  width: '50%',
+                  height: '90%',
+                  marginLeft: '2%',
+                  borderRadius: '15px',
+                  boxShadow: 'rgb(0 0 0 / 24%) 1px 1px 2px 1px',
+                  cursor: 'pointer',
+                  padding: '20px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}>
+                <p><b>RISKS</b></p>
+                <p>Single prompt</p>
+              </div>
+            </div>
+
+            <div style={{
+              width: '100%',
+              height: '100%',
+            }}>
+              <div style={{
+                width: '100%',
+                height: '100%',
+                borderRadius: '15px',
+                boxShadow: 'rgb(0 0 0 / 24%) 1px 1px 2px 1px',
+                padding: '20px',
+              }}>
+                {output}
+              </div>
+
+            </div>
+          </div>
+
         </Col>
       </Row >
     </Container >
   )
 }
-
-/* <form onSubmit={handleSubmit}>
-        <input type="file" onChange={handleFileChange} />
-        <button type="submit">Upload</button>
-      </form>
-      <textarea
-        placeholder="Enter text here"
-        value={text}
-        onChange={handleTextChange}
-        style={{
-          color: 'black',
-          fontSize: '16px',
-          width: '100%',
-          minHeight: '100px', // Set the minimum height here
-          resize: 'vertical', // Allow vertical resizing
-        }}
-        rows={4} // Specify the number of visible rows
-      />
-      <button onClick={askPdf}>Ask</button>
-      <p style={{ color: 'white' }}>{output}</p> */
